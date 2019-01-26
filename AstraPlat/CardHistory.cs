@@ -6,19 +6,27 @@ using System.Threading.Tasks;
 
 namespace AstraPlat
 {
-    class CardHistory
+    public class CardHistory
     {
-        public int CardID { get; set; }                 // номер карточки
         public int TripsNumber { get; set; }            // количество поездок
         public int FreeTripsNumber { get; set; }        // количество бесплатных поездок
         public DateTime LastReplenishment { get; set; } // дата последнего пополнения
 
         #region Констукторы
-        public CardHistory(int cardID, int tripsNumber, int freeTripsNumber, DateTime lastReplenishment)
+        public CardHistory(int tripsNumber)
         {
-            CardID = cardID;
             TripsNumber = tripsNumber;
+        }
+        public CardHistory(DateTime dateTime)
+        {
+            LastReplenishment = dateTime;
+        }
+        public CardHistory(int tripsNumber, int freeTripsNumber) : this(tripsNumber)
+        {
             FreeTripsNumber = freeTripsNumber;
+        }
+        public CardHistory(int tripsNumber, int freeTripsNumber, DateTime lastReplenishment) : this(tripsNumber, freeTripsNumber)
+        {
             LastReplenishment = lastReplenishment;
         }
         #endregion

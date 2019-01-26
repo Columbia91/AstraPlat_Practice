@@ -8,12 +8,18 @@ namespace AstraPlat
 {
     class Card
     {
+        private CardHistory cardHistory;
         private static int Count { get; set; }
         public int CardID { get; set; }         // номер карточки
         public string Type { get; set; }        // тип карточки
         public int Balance { get; set; }        // баланс карточки
 
+        public void CardHistory(DateTime dateTime)
+        {
+            cardHistory = new CardHistory(dateTime);
+        }
         #region Конструкторы
+        public Card() {}
         public Card(string type)
         {
             Count++;
