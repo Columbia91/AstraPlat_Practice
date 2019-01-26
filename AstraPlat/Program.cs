@@ -12,17 +12,37 @@ namespace AstraPlat
         static bool check;
         static void Main(string[] args)
         {
+            Random rnd = new Random();
+            const int CITY_BUS_COUNT = 50;
+            const int EXPRESS_BUS_COUNT = 10;
+            const int BEGIN_RANGE_CITY_BUS = 1, END_RANGE_CITY_BUS = 50;
+            const int BEGIN_RANGE_EXPRESS_BUS = 100, END_RANGE_EXPRESS_BUS = 110;
+
+            Bus[] cityBus = new Bus[CITY_BUS_COUNT];
+            Bus[] expressBus = new Bus[EXPRESS_BUS_COUNT];
+
+            for (int i = 0; i < cityBus.Length; i++)
+            {
+                cityBus[i] = new Bus(rnd.Next(BEGIN_RANGE_CITY_BUS, END_RANGE_CITY_BUS + 1), "Городской");
+            }
+            for (int i = 0; i < expressBus.Length; i++)
+            {
+                expressBus[i] = new Bus(rnd.Next(BEGIN_RANGE_EXPRESS_BUS, END_RANGE_EXPRESS_BUS + 1), "Экспресс");
+            }
+
             Card childCard = new Card("Детский", 2500);
             Card adultCard = new Card("Взрослый", 1200);
             Card expressChildCard = new Card("Экспресс-Детский", 3600);
             Card expressAdultCard = new Card("Экспресс-Взрослый", 4800);
             Card[] card = new Card[] { childCard, adultCard, expressChildCard, expressAdultCard };
+            
             UseTerminal(card);
         }
         static void UseTerminal(Card[] card)
         {
             check = false;
             Random rnd = new Random();
+
             while (!check)
             {
                 Console.Clear();
@@ -87,7 +107,6 @@ namespace AstraPlat
                 {
                     Console.Write("Минимальная сумма пополнения составляет 1000 тенге, нажмите Backspace чтобы ввести заново...");
                     Console.ReadKey();
-                    //ConsoleKey key = Console.ReadKey().Key;
                     check = false;
                 }
             }
