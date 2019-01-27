@@ -10,12 +10,22 @@ namespace AstraPlat
     {
         static int choice;
         static bool check;
+
+        const int CITY_ROUTE_COUNT = 50;
+        const int EXPRESS_ROUTE_COUNT = 10;
+        const int BEGIN_NUMB_CITY_ROUTE = 1;
+        const int BEGIN_NUMB_EXPRESS_ROUTE = 100;
+
+        const int CITY_BUS_CHILD_FARE = 40;
+        const int CITY_BUS_ADULT_FARE = 90;
+        const int EXPRESS_BUS_CHILD_FARE = 90;
+        const int EXPRESS_BUS_ADULT_FARE = 180;
         static void Main(string[] args)
         {
             Random rnd = new Random();
-            const int CITY_ROUTE_COUNT = 50;
-            const int EXPRESS_ROUTE_COUNT = 10;
-            const int BEGIN_NUMB_EXPRESS_ROUTE = 100;
+            //const int CITY_ROUTE_COUNT = 50;
+            //const int EXPRESS_ROUTE_COUNT = 10;
+            //const int BEGIN_NUMB_EXPRESS_ROUTE = 100;
 
             Bus[] cityBus = new Bus[CITY_ROUTE_COUNT];
             Bus[] expressBus = new Bus[EXPRESS_ROUTE_COUNT];
@@ -105,15 +115,7 @@ namespace AstraPlat
                 }
             }
             card.Balance = money;
-            try
-            {
-                card.CardHistory(DateTime.Now);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            
+            card.cardStory.LastReplenishment = DateTime.Now;
         }
         #endregion
 
@@ -133,16 +135,53 @@ namespace AstraPlat
             {
                 Console.Write("Сесть в:" +
                     "\n- Городской маршрут (1-50)" +
-                    "\n- Экспресс маршрут (101-110)" +
+                    "\n- Экспресс маршрут (100-110)" +
                     "\n\nВыбор: ");
                 check = int.TryParse(Console.ReadLine(), out choice);
-                switch (choice)
+
+                const int PAID_TRIP_COUNT = 10; // КОЛИЧЕСТВО ПЛАТНЫХ ПОЕЗДОК
+                const int VALIDITY_MONTH = 3;   // СРОК ДЕЙСТВИЯ БАЛАНСА
+
+                DateTime difference = new DateTime((DateTime.Now - card.cardStory.LastReplenishment).Ticks);
+                if (difference.Year - 1 > 0 || (difference.Year - 1 == 0 && difference.Month - 1 == VALIDITY_MONTH))
                 {
-                    case 1: break;
-                    case 2: break;
-                    default:
-                        check = false; Console.Write("Ошибочный ввод. Нажмите ENTER чтобы ввести заново...");
-                        Console.ReadKey(); break;
+                    Console.WriteLine("Срок действия баланса истек. " +
+                        "С момента последнего пополнения прошло больше 3-х месяцев"); break;
+                }
+                if (choice >= BEGIN_NUMB_CITY_ROUTE && choice < BEGIN_NUMB_EXPRESS_ROUTE)
+                {
+                    if (card.cardStory.TripsNumber == PAID_TRIP_COUNT)
+                    {
+                        card.cardStory.TripsNumber = 0;
+                        break; // +1 бесплатная поездка
+                    }
+                    else if (card.Type == "Детский" || card.Type == "Экспресс-Детский")
+                    {
+                        card.Balance -= CITY_BUS_CHILD_FARE;
+                    }
+                    else
+                    {
+                        card.Balance -= CITY_BUS_ADULT_FARE;
+                    }
+
+                    card.cardStory.TripsNumber++;
+                }
+                else if(choice >= BEGIN_NUMB_EXPRESS_ROUTE && choice <= BEGIN_NUMB_EXPRESS_ROUTE + EXPRESS_ROUTE_COUNT)
+                {
+                    if(card.Type == "Детский" || card.Type == "Экспресс-Детский")
+                    {
+                        card.Balance -= EXPRESS_BUS_CHILD_FARE;
+                    }
+                    else
+                    {
+                        card.Balance -= EXPRESS_BUS_ADULT_FARE;
+                    }
+                }
+                else
+                {
+                    check = false;
+                    Console.Write("Такого маршрута не существует. Нажмите ENTER чтобы ввести заново...");
+                    Console.ReadKey();
                 }
             }
         }
