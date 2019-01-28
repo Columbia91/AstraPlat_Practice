@@ -9,7 +9,9 @@ namespace AstraPlat
     public struct CardHistory
     {
         public int TripsNumber;           // количество поездок
+        public int TransfersCount;
         public DateTime LastReplenishment; // дата последнего пополнения
+        public DateTime ValidatonTime;
 
         #region Констукторы
         //public CardHistory(int tripsNumber)

@@ -29,5 +29,11 @@ namespace AstraPlat
             Balance = balance;
         }
         #endregion
+
+        public void Show()
+        {
+            Console.WriteLine("Тип карточки: " + Type +
+                "\nБаланс карточки: " + Balance);
+        }
     }
 }

@@ -20,12 +20,11 @@ namespace AstraPlat
         const int CITY_BUS_ADULT_FARE = 90;
         const int EXPRESS_BUS_CHILD_FARE = 90;
         const int EXPRESS_BUS_ADULT_FARE = 180;
+
+        const int MIN_IN_HOUR = 60;
         static void Main(string[] args)
         {
             Random rnd = new Random();
-            //const int CITY_ROUTE_COUNT = 50;
-            //const int EXPRESS_ROUTE_COUNT = 10;
-            //const int BEGIN_NUMB_EXPRESS_ROUTE = 100;
 
             Bus[] cityBus = new Bus[CITY_ROUTE_COUNT];
             Bus[] expressBus = new Bus[EXPRESS_ROUTE_COUNT];
@@ -39,7 +38,7 @@ namespace AstraPlat
                 expressBus[i] = new Bus(i+1, "Экспресс");
             }
             
-            Trip(GoToCass(), cityBus, expressBus);
+            Trip(GoToCass());
         }
 
         #region Пойти в кассу
@@ -128,17 +127,18 @@ namespace AstraPlat
         #endregion
 
         #region Поездка
-        static void Trip(Card card, Bus[] cityBus, Bus[] expressBus)
+        static void Trip(Card card)
         {
             check = false;
             while (!check)
             {
+                Console.Clear();
                 Console.Write("Сесть в:" +
-                    "\n- Городской маршрут (1-50)" +
+                    "\n- Городской маршрут (1-99)" +
                     "\n- Экспресс маршрут (100-110)" +
                     "\n\nВыбор: ");
                 check = int.TryParse(Console.ReadLine(), out choice);
-
+                
                 const int PAID_TRIP_COUNT = 10; // КОЛИЧЕСТВО ПЛАТНЫХ ПОЕЗДОК
                 const int VALIDITY_MONTH = 3;   // СРОК ДЕЙСТВИЯ БАЛАНСА
 
@@ -148,14 +148,22 @@ namespace AstraPlat
                     Console.WriteLine("Срок действия баланса истек. " +
                         "С момента последнего пополнения прошло больше 3-х месяцев"); break;
                 }
+                if (card.cardStory.TripsNumber == PAID_TRIP_COUNT)
+                {
+                    card.cardStory.TripsNumber = 0;
+                    break; // +1 бесплатная поездка
+                }
+                if((DateTime.Now - card.cardStory.ValidatonTime).TotalMinutes < MIN_IN_HOUR && card.cardStory.TransfersCount == 0)
+                {
+                    card.cardStory.TransfersCount++;
+                    Console.WriteLine("Пересадка");
+                    card.Show(); break;
+                }
+
                 if (choice >= BEGIN_NUMB_CITY_ROUTE && choice < BEGIN_NUMB_EXPRESS_ROUTE)
                 {
-                    if (card.cardStory.TripsNumber == PAID_TRIP_COUNT)
-                    {
-                        card.cardStory.TripsNumber = 0;
-                        break; // +1 бесплатная поездка
-                    }
-                    else if (card.Type == "Детский" || card.Type == "Экспресс-Детский")
+                    
+                    if (card.Type == "Детский" || card.Type == "Экспресс-Детский")
                     {
                         card.Balance -= CITY_BUS_CHILD_FARE;
                     }
@@ -163,8 +171,9 @@ namespace AstraPlat
                     {
                         card.Balance -= CITY_BUS_ADULT_FARE;
                     }
-
+                    card.cardStory.ValidatonTime = DateTime.Now;
                     card.cardStory.TripsNumber++;
+                    card.Show();
                 }
                 else if(choice >= BEGIN_NUMB_EXPRESS_ROUTE && choice <= BEGIN_NUMB_EXPRESS_ROUTE + EXPRESS_ROUTE_COUNT)
                 {
@@ -176,11 +185,30 @@ namespace AstraPlat
                     {
                         card.Balance -= EXPRESS_BUS_ADULT_FARE;
                     }
+                    card.cardStory.TripsNumber++;
+                    card.Show();
                 }
                 else
                 {
                     check = false;
                     Console.Write("Такого маршрута не существует. Нажмите ENTER чтобы ввести заново...");
+                    Console.ReadKey();
+                }
+            }
+            check = false;
+            while (!check)
+            {
+                Console.Write("\n1) Сделать пересадку" +
+                    "\n2) Закончить поездку" +
+                    "\nВыбор: ");
+                check = int.TryParse(Console.ReadLine(), out choice);
+                
+                if (choice == 1) Trip(card);
+                else if (choice == 2) Environment.Exit(0);
+                else
+                {
+                    check = false;
+                    Console.Write("Ошибочный выбор. Нажмите ENTER чтобы ввести заново...");
                     Console.ReadKey();
                 }
             }
